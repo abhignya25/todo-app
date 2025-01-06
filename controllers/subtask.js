@@ -1,6 +1,13 @@
 const Subtask = require('../models/subtask');
+const { validationResult } = require('express-validator');
 
 exports.createSubtask = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+
     const subtask = new Subtask({
         title: req.body.title,
         description: req.body.description,
@@ -63,6 +70,12 @@ exports.getSubtasks = (req, res) => {
 }
 
 exports.updateSubtask = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+    
     Subtask.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
         $set: {
             title: req.body.title,

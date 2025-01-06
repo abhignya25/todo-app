@@ -1,8 +1,16 @@
+const { validationResult } = require('express-validator');
+
 const Category = require('../models/categrory');
 const Task = require('../models/task');
 const user = require('../models/user');
 
 exports.createCategory = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+
     const category = new Category({
         name: req.body.name,
         userId: req.user.id
@@ -60,6 +68,12 @@ exports.getCategories = (req, res) => {
 }
 
 exports.updateCategory = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+    
     Category.findOneAndUpdate({ _id: req.params.id, userId: req.user.id  }, {$set: {
         name: req.body.name,
     }}, {new: true})

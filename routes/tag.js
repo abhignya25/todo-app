@@ -1,10 +1,16 @@
-// Import modules
 const express = require('express');
 const router = express.Router();
+const { body } = require('express-validator');
 
-// Import controller
 const tagController = require('../controllers/tag');
 const authMiddleware = require('../middleware/jwtAuth');
+
+const validateTag = [
+    body('name')
+        .isString().withMessage('Category name must be a string')
+        .isLength({ min: 3, max: 50 }).withMessage('Category name must be between 3 and 50 characters long')
+        .matches(/^[a-zA-Z0-9 ]+$/).withMessage('Category name can only contain alphanumeric characters and spaces'),
+];
 
 // Define routes
 // GET /tags/:id
@@ -14,10 +20,10 @@ router.get('/:id', authMiddleware.jwtAuth, tagController.getTag);
 router.get('/', authMiddleware.jwtAuth, tagController.getTags);
 
 // POST /tags
-router.post('/', authMiddleware.jwtAuth, tagController.createTag);
+router.post('/', authMiddleware.jwtAuth, validateTag, tagController.createTag);
 
 // PUT /tags/:id
-router.put('/:id', authMiddleware.jwtAuth, tagController.updateTag);
+router.put('/:id', authMiddleware.jwtAuth, validateTag, tagController.updateTag);
 
 // DELETE /tags/:id
 router.delete('/:id', authMiddleware.jwtAuth, tagController.deleteTag);

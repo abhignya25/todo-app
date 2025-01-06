@@ -1,11 +1,17 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 
 const User = require("../models/user");
 
 exports.signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        }
 
         if (!email || !password) {
             return res.status(400).json({ message: 'All fields are required.' });
@@ -32,7 +38,12 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { email, password } = req.body;
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        }
 
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required.' });

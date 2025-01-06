@@ -1,7 +1,14 @@
 const Tag = require('../models/tag');
 const user = require('../models/user');
+const { validationResult } = require('express-validator');
 
 exports.createTag = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+
     const tag = new Tag({
         name: req.body.name,
         userId: req.user.id
@@ -59,6 +66,12 @@ exports.getTags = (req, res) => {
 }
 
 exports.updateTag = (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+    }
+    
     Tag.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {$set: {
         name: req.body.name,
         userId: req.user.id
