@@ -9,6 +9,7 @@ const authMiddleware = require('../middleware/jwtAuth');
 const validateCategory = [
     body('name')
         .isString().withMessage('Category name must be a string')
+        .trim()
         .isLength({ min: 3, max: 50 }).withMessage('Category name must be between 3 and 50 characters long')
         .matches(/^[a-zA-Z0-9 ]+$/).withMessage('Category name can only contain alphanumeric characters and spaces'),
 ];
