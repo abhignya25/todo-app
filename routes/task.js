@@ -11,8 +11,7 @@ const validateTask = [
     body('title')
         .isString().withMessage('Subtask title must be a string')
         .trim()
-        .isLength({ min: 3, max: 100 }).withMessage('Subtask title must be between 3 and 100 characters long')
-        .matches(/^[a-zA-Z0-9 ]+$/).withMessage('Subtask title can only contain alphanumeric characters and spaces'),
+        .isLength({ min: 3, max: 100 }).withMessage('Subtask title must be between 3 and 100 characters long'),
     body('description')
         .optional()
         .trim()

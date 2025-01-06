@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config({ path: './config/.env' });
 
+const errorHandler = require('./middleware/errorHandler');
+
 // Initialize the app
 const app = express();
 
@@ -29,6 +31,9 @@ app.use('/auth', authRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/subtasks', subtaskRpoutes);
 app.use('/categories', categoryRoutes);
+
+// Error handling middleware
+app.use(errorHandler);
 
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI, {
