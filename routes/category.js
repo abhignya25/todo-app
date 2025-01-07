@@ -4,13 +4,14 @@ const { body } = require('express-validator');
 
 const categoryController = require('../controllers/category');
 const authMiddleware = require('../middleware/jwtAuth');
+const { messages } = require('../util/messages');
 
 // Define validation
 const validateCategory = [
     body('name')
-        .isString().withMessage('Category name must be a string')
+        .isString().withMessage(messages.CATEGORY_TYPE)
         .trim()
-        .isLength({ min: 3, max: 50 }).withMessage('Category name must be between 3 and 50 characters long')
+        .isLength({ min: 3, max: 50 }).withMessage(messages.CATGEORY_LENGTH)
 ];
 
 // Define routes

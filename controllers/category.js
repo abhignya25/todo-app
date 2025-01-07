@@ -2,16 +2,17 @@ const { validationResult } = require('express-validator');
 
 const Category = require('../models/category');
 const Task = require('../models/task');
-const user = require('../models/user');
+const { messages, codes } = require('../util/messages');
+var mongoose = require('mongoose');
 
-exports.createCategory = (req, res) => {
+exports.createCategory = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        const error = new Error('Validation failed. Invalid input.');
+        const error = new Error(messages.VALIDATION_FAILED);
         error.statusCode = 422;
         error.errors = errors.array();
-        error.code = 'validation_error';
+        error.code = codes.VALIDATION_ERROR;
         return next(error);
     }
 
@@ -23,15 +24,19 @@ exports.createCategory = (req, res) => {
     category.save()
         .then(category => {
             res.status(201).json({
-                message: 'Category created successfully',
+                message: messages.CATEGORY_CREATED_SUCCESSFULLY,
                 category: category
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error creating category',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -39,9 +44,10 @@ exports.getCategory = (req, res) => {
     Category.findOne({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
-                return res.status(404).json({
-                    message: 'Category not found'
-                });
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
@@ -49,25 +55,39 @@ exports.getCategory = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting category',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
 exports.getCategories = (req, res) => {
     Category.find({ userId: req.user.id })
         .then(categories => {
+            if (categories.length === 0) {
+                return res.status(204).json({
+                    categories: []
+                });
+            }
+
             res.status(200).json({
                 categories: categories
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting categories',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -75,29 +95,40 @@ exports.updateCategory = (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
     }
-    
-    Category.findOneAndUpdate({ _id: req.params.id, userId: req.user.id  }, {$set: {
-        name: req.body.name,
-    }}, {new: true})
+
+    Category.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
+        $set: {
+            name: req.body.name,
+        }
+    }, { new: true })
         .then(category => {
             if (!category) {
-                return res.status(404).json({
-                    message: 'Category not found'
-                });
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Category updated',
+                message: messages.CATEGORY_UPDATED,
                 category: category
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error updating category',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -105,20 +136,25 @@ exports.deleteCategory = (req, res) => {
     Category.findOneAndRemove({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
-                return res.status(404).json({
-                    message: 'Category not found'
-                });
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Category deleted'
+                message: messages.CATEGORY_DELETED
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error deleting category',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -126,36 +162,44 @@ exports.getTasksByCategory = (req, res) => {
     Category.findOne({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
-                return res.status(404).json({
-                    message: 'Category not found'
-                });
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
-            Task.find({ category: category._id })  // Query tasks that belong to the category
+            Task.find({ category: category._id })
                 .then(tasks => {
                     if (tasks.length === 0) {
-                        return res.status(404).json({
-                            message: 'No tasks found for this category'
+                        return res.status(204).json({
+                            tasks: []
                         });
                     }
-                    
-                    // Return the tasks in the response
+
                     res.status(200).json({
                         tasks: tasks
                     });
                 })
                 .catch(err => {
-                    res.status(500).json({
-                        message: 'Error retrieving tasks for the category',
-                        error: err
-                    });
+                    const error = new Error();
+                    error.errors = [
+                        {
+                            code: err.code,
+                            msg: err.message
+                        }
+                    ];
+                    return next(error);
                 });
 
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting category tasks',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }

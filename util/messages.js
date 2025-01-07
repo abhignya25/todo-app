@@ -19,4 +19,11 @@ exports.messages = {
     INCORRECT_PASSWORD: 'Incorrect password.',
     INCORRECT_EMAIL: 'Incorrect email.',
     LOGIN_SUCCESS: 'Login successful!',
+    CATEGORY_CREATED_SUCCESSFULLY: 'Category created successfully',
+    CATEGORY_ERROR: 'Error creating category',
+    CATEGORY_NOT_FOUND: 'Category not found',
+    CATEGORY_UPDATED: 'Category updated successfully',
+    CATEGORY_DELETED: 'Category deleted successfully',
+    CATEGORY_TYPE: 'Category name must be a string',
+    CATGEORY_LENGTH: 'Category name must be between 3 and 50 characters',
 }

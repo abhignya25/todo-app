@@ -9,7 +9,7 @@ const errorHandler = (err, req, res, next) => {
     if (errors) {
         return res.status(statusCode).json(errors.map(error => {
             return {
-                code: code,
+                code: error.code || code,
                 message: error.msg,
             };
         }));
