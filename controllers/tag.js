@@ -66,7 +66,14 @@ exports.getTag = (req, res, next) => {
 }
 
 exports.getTags = (req, res, next) => {
-    Tag.find({ userId: req.user.id })
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
+    Tag.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
         .then(tags => {
             res.status(200).json({
                 tags: tags

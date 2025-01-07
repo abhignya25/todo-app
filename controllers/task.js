@@ -109,7 +109,14 @@ exports.getTask = (req, res, next) => {
 }
 
 exports.getTasks = (req, res, next) => {
-    Task.find({ userId: req.user.id })
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
+    Task.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
         .then(tasks => {
             if (tasks.length === 0) {
                 return res.status(204).json({
@@ -244,6 +251,13 @@ exports.deleteTask = (req, res, next) => {
 }
 
 exports.getSubtasksByTask = (req, res, next) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
     Task.findOne({ _id: req.params.id, userId: req.user.id })
         .then((task) => {
             if (!task) {
@@ -253,7 +267,7 @@ exports.getSubtasksByTask = (req, res, next) => {
                 return next(error);
             }
 
-            Subtask.find({ parentTask: task._id })
+            Subtask.find({ parentTask: task._id }).skip(offset).limit(limitNumber)
                 .then(subtasks => {
                     if (subtasks.length === 0) {
                         return res.status(204).json({

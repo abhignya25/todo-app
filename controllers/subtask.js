@@ -95,7 +95,14 @@ exports.getSubtask = (req, res, next) => {
 }
 
 exports.getSubtasks = (req, res, next) => {
-    Subtask.find({ userId: req.user.id })
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
+    Subtask.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
         .then(subtasks => {
             res.status(200).json({
                 subtasks: subtasks

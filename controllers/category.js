@@ -3,6 +3,7 @@ const { validationResult } = require('express-validator');
 const Category = require('../models/category');
 const Task = require('../models/task');
 const { messages, codes } = require('../util/constants');
+const { parse } = require('dotenv');
 
 exports.createCategory = (req, res, next) => {
     const errors = validationResult(req);
@@ -66,7 +67,14 @@ exports.getCategory = (req, res, next) => {
 }
 
 exports.getCategories = (req, res, next) => {
-    Category.find({ userId: req.user.id })
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
+    Category.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
         .then(categories => {
             if (categories.length === 0) {
                 return res.status(204).json({
@@ -158,6 +166,13 @@ exports.deleteCategory = (req, res, next) => {
 }
 
 exports.getTasksByCategory = (req, res, next) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const offset = (pageNumber - 1) * limitNumber;
+
     Category.findOne({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
@@ -167,7 +182,7 @@ exports.getTasksByCategory = (req, res, next) => {
                 return next(error);
             }
 
-            Task.find({ category: category._id })
+            Task.find({ category: category._id }).skip(offset).limit(limitNumber)
                 .then(tasks => {
                     if (tasks.length === 0) {
                         return res.status(204).json({
