@@ -2,7 +2,7 @@ const { validationResult } = require('express-validator');
 
 const Category = require('../models/category');
 const Task = require('../models/task');
-const { messages, codes } = require('../util/messages');
+const { messages, codes } = require('../util/constants');
 
 exports.createCategory = (req, res, next) => {
     const errors = validationResult(req);

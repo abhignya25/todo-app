@@ -1,7 +1,7 @@
 const Tag = require('../models/tag');
 const user = require('../models/user');
 const { validationResult } = require('express-validator');
-const { messages, codes } = require('../util/messages');
+const { messages, codes } = require('../util/constants');
 
 
 exports.createTag = (req, res) => {

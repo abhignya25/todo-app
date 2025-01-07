@@ -1,4 +1,4 @@
-const { messages, codes } = require('../util/messages');
+const { messages, codes } = require('../util/constants');
 
 const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;

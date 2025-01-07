@@ -1,12 +1,36 @@
-const Task = require("../models/task");
-const Subtask = require("../models/subtask");
 const { validationResult } = require('express-validator');
 
-exports.createTask = (req, res) => {
+const Task = require("../models/task");
+const Subtask = require("../models/subtask");
+const { messages, codes } = require('../util/constants');
+
+exports.createTask = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
+    }
+
+    // Check if category exists
+    const category = await Category.findById(req.body.category);
+    if (!category) {
+        const error = new Error(messages.CATEGORY_NOT_FOUND);
+        error.statusCode = 422;
+        error.code = codes.RESOURCE_NOT_FOUND;
+        return next(error);
+    }
+
+    // Check if all tags exist
+    const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
+    if (tags.length !== (req.body.tags || []).length) {
+        const error = new Error(messages.TAGS_NOT_FOUND);
+        error.statusCode = 422;
+        error.code = codes.RESOURCE_NOT_FOUND;
+        return next(error);
     }
 
     const task = new Task({
@@ -23,25 +47,30 @@ exports.createTask = (req, res) => {
     task.save()
         .then(task => {
             res.status(201).json({
-                message: 'Task created successfully',
+                message: messages.TASK_CREATED,
                 task: task
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error creating task',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.getTask = (req, res) => {
-    Task.findOne({_id: req.params.id, userId: req.user.id})
+exports.getTask = (req, res, next) => {
+    Task.findOne({ _id: req.params.id, userId: req.user.id })
         .then(task => {
             if (!task) {
-                return res.status(404).json({
-                    message: 'Task not found'
-                });
+                const error = new Error(messages.TASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
@@ -49,113 +78,166 @@ exports.getTask = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting task',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.getTasks = (req, res) => {
+exports.getTasks = (req, res, next) => {
     Task.find({ userId: req.user.id })
         .then(tasks => {
+            if (tasks.length === 0) {
+                return res.status(204).json({
+                    tasks: []
+                });
+            }
+
             res.status(200).json({
                 tasks: tasks
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting tasks',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.updateTask = (req, res) => {
+exports.updateTask = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
     }
-    
-    Task.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {$set: {
-        title: req.body.title,
-        description: req.body.description,
-        priority: req.body.priority,
-        due: new Date(req.body.due),
-        status: req.body.status,
-        tags: req.body.tags,
-        category: req.body.category,
-        userId: req.user.id
-    }}, {new: true})
+
+    // Check if category exists
+    const category = await Category.findById(req.body.category);
+    if (!category) {
+        const error = new Error(messages.CATEGORY_NOT_FOUND);
+        error.statusCode = 422;
+        error.code = codes.RESOURCE_NOT_FOUND;
+        return next(error);
+    }
+
+    // Check if all tags exist
+    const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
+    if (tags.length !== (req.body.tags || []).length) {
+        const error = new Error(messages.TAGS_NOT_FOUND);
+        error.statusCode = 422;
+        error.code = codes.RESOURCE_NOT_FOUND;
+        return next(error);
+    }
+
+    Task.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
+        $set: {
+            title: req.body.title,
+            description: req.body.description,
+            priority: req.body.priority,
+            due: new Date(req.body.due),
+            status: req.body.status,
+            tags: req.body.tags,
+            category: req.body.category,
+            userId: req.user.id
+        }
+    }, { new: true })
         .then(task => {
             if (!task) {
-                return res.status(404).json({
-                    message: 'Task not found'
-                });
+                const error = new Error(messages.TASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Task updated successfully',
+                message: messages.TASK_UPDATED,
                 task: task
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error updating task',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.deleteTask = (req, res) => {
+exports.deleteTask = (req, res, next) => {
     Task.findOneAndRemove({ _id: req.params.id, userId: req.user.id })
         .then(task => {
             if (!task) {
-                return res.status(404).json({
-                    message: 'Task not found'
-                });
+                const error = new Error(messages.TASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Task deleted successfully'
+                message: messages.TASK_DELETED
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error deleting task',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.getSubtasksByTask = (req, res) => {
-    Task.findOne({_id: req.params.id, userId: req.user.id})
+exports.getSubtasksByTask = (req, res, next) => {
+    Task.findOne({ _id: req.params.id, userId: req.user.id })
         .then((task) => {
-            if(!task) {
-                return res.status(404).json({
-                    message: 'Task not found'
-                });
+            if (!task) {
+                const error = new Error(messages.TASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             Subtask.find({ parentTask: task._id })
                 .then(subtasks => {
                     if (subtasks.length === 0) {
-                        return res.status(404).json({
-                            message: 'No subtasks found for this task'
+                        return res.status(204).json({
+                            subtasks: []
                         });
                     }
-                    
+
                     // Return the tasks in the response
                     res.status(200).json({
                         subtasks: subtasks
                     });
                 })
                 .catch(err => {
-                    res.status(500).json({
-                        message: 'Error getting subtasks',
-                        error: err
-                    });
+                    const error = new Error();
+                    error.errors = [
+                        {
+                            code: err.code,
+                            msg: err.message
+                        }
+                    ];
+                    return next(error);
                 });
         })
 }

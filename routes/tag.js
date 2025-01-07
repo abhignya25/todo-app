@@ -4,7 +4,7 @@ const { body } = require('express-validator');
 
 const tagController = require('../controllers/tag');
 const authMiddleware = require('../middleware/jwtAuth');
-const { messages } = require('../util/messages');
+const { messages } = require('../util/constants');
 
 const validateTag = [
     body('name')

@@ -4,7 +4,7 @@ const { body } = require('express-validator');
 
 const categoryController = require('../controllers/category');
 const authMiddleware = require('../middleware/jwtAuth');
-const { messages } = require('../util/messages');
+const { messages } = require('../util/constants');
 
 // Define validation
 const validateCategory = [

@@ -4,7 +4,7 @@ const { body } = require('express-validator');
 
 const subtaskController = require('../controllers/subtask');
 const authMiddleware = require('../middleware/jwtAuth');
-const { messages, status, priorities } = require('../util/messages');
+const { messages, status, priorities } = require('../util/constants');
 
 const validateSubtask = [
     body('title')
