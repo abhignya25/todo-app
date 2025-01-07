@@ -34,15 +34,20 @@ exports.createSubtask = async (req, res, next) => {
         return next(error);
     }
 
-    const subtask = new Subtask({
+    const subtaskData = {
         title: req.body.title,
         description: req.body.description,
         priority: req.body.priority,
-        due: new Date(req.body.due),
         status: req.body.status,
         parentTask: req.body.parentTask,
         userId: req.user.id
-    });
+    }
+
+    if (req.body.due) {
+        subtaskData.due = new Date(req.body.due);
+    }
+
+    const subtask = new Subtask(subtaskData);
 
     subtask.save()
         .then(subtask => {
@@ -138,16 +143,21 @@ exports.updateSubtask = async (req, res, next) => {
         return next(error);
     }
 
+    const subtaskData = {
+        title: req.body.title,
+        description: req.body.description,
+        priority: req.body.priority,
+        status: req.body.status,
+        parentTask: req.body.parentTask,
+        userId: req.user.id
+    }
+
+    if (req.body.due) {
+        subtaskData.due = new Date(req.body.due);
+    }
+
     Subtask.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
-        $set: {
-            title: req.body.title,
-            description: req.body.description,
-            priority: req.body.priority,
-            due: new Date(req.body.due),
-            status: req.body.status,
-            parentTask: req.body.parentTask,
-            userId: req.user.id
-        }
+        $set: subtaskData
     }, { new: true })
         .then(subtask => {
             if (!subtask) {

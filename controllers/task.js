@@ -47,16 +47,21 @@ exports.createTask = async (req, res, next) => {
         return next(error);
     }
 
-    const task = new Task({
+    const taskData = {
         title: req.body.title,
         description: req.body.description,
         priority: req.body.priority,
-        due: new Date(req.body.due),
         status: req.body.status,
         tags: req.body.tags,
         category: req.body.category,
         userId: req.user.id
-    });
+    }
+
+    if (req.body.due) {
+        taskData.due = new Date(req.body.due);
+    }
+
+    const task = new Task(taskData);
 
     task.save()
         .then(task => {
@@ -170,17 +175,22 @@ exports.updateTask = async (req, res, next) => {
         return next(error);
     }
 
+    const taskData = {
+        title: req.body.title,
+        description: req.body.description,
+        priority: req.body.priority,
+        status: req.body.status,
+        tags: req.body.tags,
+        category: req.body.category,
+        userId: req.user.id
+    }
+
+    if (req.body.due) {
+        taskData.due = new Date(req.body.due);
+    }
+
     Task.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
-        $set: {
-            title: req.body.title,
-            description: req.body.description,
-            priority: req.body.priority,
-            due: new Date(req.body.due),
-            status: req.body.status,
-            tags: req.body.tags,
-            category: req.body.category,
-            userId: req.user.id
-        }
+        $set: taskData
     }, { new: true })
         .then(task => {
             if (!task) {

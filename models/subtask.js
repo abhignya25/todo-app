@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { status, priorities } = require("../util/constants");
+
 const Schema = mongoose.Schema;
 
 const subtaskSchema = new Schema({
@@ -11,11 +13,11 @@ const subtaskSchema = new Schema({
     due: Date,
     status: {
         type: String,
-        enum: ["Open", "In Progress", "Completed"]
+        enum: status
     },
     priority: {
         type: String,
-        enum: ["High", "Medium", "Low"]
+        enum: priorities
     },
     parentTask: {
         type: Schema.Types.ObjectId,
