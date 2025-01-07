@@ -4,31 +4,32 @@ const { body } = require('express-validator');
 
 const subtaskController = require('../controllers/subtask');
 const authMiddleware = require('../middleware/jwtAuth');
+const { messages, status, priorities } = require('../util/messages');
 
 const validateSubtask = [
     body('title')
-        .isString().withMessage('Subtask title must be a string')
+        .isString().withMessage(messages.SUBTASK_TITLE_TYPE)
         .trim()
-        .isLength({ min: 3, max: 100 }).withMessage('Subtask title must be between 3 and 100 characters long')
+        .isLength({ min: 3, max: 100 }).withMessage(messages.SUBTASK_TITLE_LENGTH)
         .trim(),
     body('description')
         .optional()
         .trim()
-        .isString().withMessage('Subtask description must be a string')
-        .isLength({ max: 500 }).withMessage('Subtask description must be at most 500 characters long'),
+        .isString().withMessage(messages.SUBTASK_DESCRIPTION_TYPE)
+        .isLength({ max: 500 }).withMessage(messages.SUBTASK_DESCRIPTION_LENGTH),
     body('due')
         .optional()
         .trim()
-        .isISO8601().withMessage('Due date must be a valid date')
+        .isISO8601().withMessage(messages.SUBTASK_DUE_TYPE)
         .toDate(),
     body('status')
         .optional()
         .trim()
-        .isIn(["Open", "In Progress", "Completed"]).withMessage('Status must be one of "Open", "In Progress", "Completed"'),
+        .isIn(status).withMessage(messages.SUBTASK_PRIORITY_TYPE),
     body('priority')
         .optional()
         .trim()
-        .isIn(["High", "Medium", "Low"]).withMessage('Priority must be one of "High", "Medium", "Low"'),
+        .isIn(priorities).withMessage(messages.SUBTASK_STATUS_TYPE),
 ];
 
 // Define routes

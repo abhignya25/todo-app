@@ -33,4 +33,21 @@ exports.messages = {
     TAG_DELETED: 'Tag deleted successfully',
     TAG_TYPE: 'Tag name must be a string',
     TAG_LENGTH: 'Tag name must be between 3 and 20 characters',
+    SUBTASK_CREATED_SUCCESSFULLY: 'Subtask created successfully',
+    SUBTASK_DELETED: 'Subtask deleted successfully',
+    SUBTASK_NOT_FOUND: 'Subtask not found',
+    SUBTASK_UPDATED: 'Subtask updated successfully',
+    SUBTASK_ERROR: 'Error creating subtask',
+    SUBTASK_TITLE_TYPE: 'Subtask title must be a string',
+    SUBTASK_TITLE_LENGTH: 'Subtask title must be between 3 and 100 characters',
+    SUBTASK_DESCRIPTION_TYPE: 'Subtask description must be a string',
+    SUBTASK_DESCRIPTION_LENGTH: 'Subtask description must be between 0 and 200 characters',
+    SUBTASK_PRIORITY_TYPE: 'Priority must be one of "High", "Medium", "Low"',
+    SUBTASK_STATUS_TYPE: 'Status must be one of "Not Started", "In Progress", "Completed"',
+    SUBTASK_DUE_TYPE: 'Subtask due must be a date',
+    TASK_NOT_FOUND: 'Task not found',
 }
+
+exports.status = ["Open", "In Progress", "Completed"]
+
+exports.priorities = ["High", "Medium", "Low"]

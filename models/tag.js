@@ -9,6 +9,7 @@ const tagSchema = new Schema({
     },
     userId: {
         type: Schema.Types.ObjectId,
+        required: true,
         ref: "User" // Reference to the User model
     }
 });

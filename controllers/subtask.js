@@ -1,11 +1,25 @@
-const Subtask = require('../models/subtask');
 const { validationResult } = require('express-validator');
 
-exports.createSubtask = (req, res) => {
+const Subtask = require('../models/subtask');
+const { messages, codes } = require('../util/messages');
+
+exports.createSubtask = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
+    }
+
+    const parentTask = await Task.findById(req.body.parentTask);
+    if (!parentTask) {
+        const error = new Error(messages.TASK_NOT_FOUND);
+        error.statusCode = 404;
+        error.code = codes.RESOURCE_DOES_NOT_EXIST;
+        return next(error);
     }
 
     const subtask = new Subtask({
@@ -21,25 +35,30 @@ exports.createSubtask = (req, res) => {
     subtask.save()
         .then(subtask => {
             res.status(201).json({
-                message: 'Subtask created successfully',
+                message: messages.SUBTASK_CREATED_SUCCESSFULLY,
                 subtask: subtask
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error creating subtask',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.getSubtask = (req, res) => {
+exports.getSubtask = (req, res, next) => {
     Subtask.findOne({ _id: req.params.id, userId: req.user.id })
         .then(subtask => {
             if (!subtask) {
-                return res.status(404).json({
-                    message: 'Subtask not found'
-                });
+                const error = new Error(messages.SUBTASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
@@ -47,14 +66,18 @@ exports.getSubtask = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting subtask',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.getSubtasks = (req, res) => {
+exports.getSubtasks = (req, res, next) => {
     Subtask.find({ userId: req.user.id })
         .then(subtasks => {
             res.status(200).json({
@@ -62,18 +85,34 @@ exports.getSubtasks = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting subtasks',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.updateSubtask = (req, res) => {
+exports.updateSubtask = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
+    }
+
+    const parentTask = await Task.findById(req.body.parentTask);
+    if (!parentTask) {
+        const error = new Error(messages.TASK_NOT_FOUND);
+        error.statusCode = 404;
+        error.code = codes.RESOURCE_DOES_NOT_EXIST;
+        return next(error);
     }
     
     Subtask.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
@@ -89,41 +128,51 @@ exports.updateSubtask = (req, res) => {
     }, {new: true})
         .then(subtask => {
             if(!subtask) {
-                return res.status(404).json({
-                    message: 'Subtask not found'
-                });
+                const error = new Error(messages.SUBTASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Subtask updated successfully',
+                message: messages.SUBTASK_UPDATED,
                 subtask: subtask
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error updating subtask',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
-exports.deleteSubtask = (req, res) => {
+exports.deleteSubtask = (req, res, next) => {
     Subtask.findOneAndRemove({ _id: req.params.id, userId: req.user._id })
         .then(subtask => {
             if (!subtask) {
-                return res.status(404).json({
-                    message: 'Subtask not found'
-                });
+                const error = new Error(messages.SUBTASK_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Subtask deleted'
+                message: messages.SUBTASK_DELETED
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error deleting subtask',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }

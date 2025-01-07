@@ -39,7 +39,7 @@ exports.createCategory = (req, res, next) => {
         });
 }
 
-exports.getCategory = (req, res) => {
+exports.getCategory = (req, res, next) => {
     Category.findOne({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
@@ -65,7 +65,7 @@ exports.getCategory = (req, res) => {
         });
 }
 
-exports.getCategories = (req, res) => {
+exports.getCategories = (req, res, next) => {
     Category.find({ userId: req.user.id })
         .then(categories => {
             if (categories.length === 0) {
@@ -90,7 +90,7 @@ exports.getCategories = (req, res) => {
         });
 }
 
-exports.updateCategory = (req, res) => {
+exports.updateCategory = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -131,7 +131,7 @@ exports.updateCategory = (req, res) => {
         });
 }
 
-exports.deleteCategory = (req, res) => {
+exports.deleteCategory = (req, res, next) => {
     Category.findOneAndRemove({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
@@ -157,7 +157,7 @@ exports.deleteCategory = (req, res) => {
         });
 }
 
-exports.getTasksByCategory = (req, res) => {
+exports.getTasksByCategory = (req, res, next) => {
     Category.findOne({ _id: req.params.id, userId: req.user.id })
         .then(category => {
             if (!category) {
