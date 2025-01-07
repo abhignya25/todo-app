@@ -4,12 +4,13 @@ const { body } = require('express-validator');
 
 const tagController = require('../controllers/tag');
 const authMiddleware = require('../middleware/jwtAuth');
+const { messages } = require('../util/messages');
 
 const validateTag = [
     body('name')
-        .isString().withMessage('Category name must be a string')
+        .isString().withMessage(messages.TAG_TYPE)
         .trim()
-        .isLength({ min: 3, max: 50 }).withMessage('Category name must be between 3 and 50 characters long')
+        .isLength({ min: 3, max: 20 }).withMessage(messages.TAG_LENGTH)
 ];
 
 // Define routes

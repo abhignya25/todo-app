@@ -1,12 +1,18 @@
 const Tag = require('../models/tag');
 const user = require('../models/user');
 const { validationResult } = require('express-validator');
+const { messages, codes } = require('../util/messages');
+
 
 exports.createTag = (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
     }
 
     const tag = new Tag({
@@ -17,15 +23,19 @@ exports.createTag = (req, res) => {
     tag.save()
         .then(tag => {
             res.status(201).json({
-                message: 'Tag created successfully',
+                message: messages.TAG_CREATED_SUCCESSFULLY,
                 tag: tag
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error creating tag',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -33,9 +43,10 @@ exports.getTag = (req, res) => {
     Tag.findOne({_id: req.params.id, userId: req.user.id})
         .then(tag => {
             if (!tag) {
-                return res.status(404).json({
-                    message: 'Tag not found'
-                });
+                const error = new Error(messages.TAG_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
@@ -43,10 +54,14 @@ exports.getTag = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting tag',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -58,10 +73,14 @@ exports.getTags = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error getting tags',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -69,7 +88,11 @@ exports.updateTag = (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error(messages.VALIDATION_FAILED);
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = codes.VALIDATION_ERROR;
+        return next(error);
     }
     
     Tag.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {$set: {
@@ -78,20 +101,25 @@ exports.updateTag = (req, res) => {
     }}, { new: true })
         .then(tag => {
             if (!tag) {
-                return res.status(404).json({
-                    message: 'Tag not found'
-                });
+                const error = new Error(messages.TAG_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
             res.status(200).json({
-                message: 'Tag updated',
+                message: messages.TAG_UPDATED,
                 tag: tag
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error updating tag',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }
 
@@ -99,19 +127,24 @@ exports.deleteTag = (req, res) => {
     Tag.findOneAndRemove({ _id: req.params.id, userId: req.user.id })
         .then(tag => {
             if (!tag) {
-                return res.status(404).json({
-                    message: 'Tag not found'
-                });
+                const error = new Error(messages.TAG_NOT_FOUND);
+                error.statusCode = 404;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
             }
 
             res.status(200).json({
-                message: 'Tag deleted'
+                message: messages.TAG_DELETED
             });
         })
         .catch(err => {
-            res.status(500).json({
-                message: 'Error deleting tag',
-                error: err
-            });
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
         });
 }

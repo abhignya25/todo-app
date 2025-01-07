@@ -26,4 +26,11 @@ exports.messages = {
     CATEGORY_DELETED: 'Category deleted successfully',
     CATEGORY_TYPE: 'Category name must be a string',
     CATGEORY_LENGTH: 'Category name must be between 3 and 50 characters',
+    TAG_CREATED_SUCCESSFULLY: 'Tag created successfully',
+    TAG_ERROR: 'Error creating tag',
+    TAG_NOT_FOUND: 'Tag not found',
+    TAG_UPDATED: 'Tag updated successfully',
+    TAG_DELETED: 'Tag deleted successfully',
+    TAG_TYPE: 'Tag name must be a string',
+    TAG_LENGTH: 'Tag name must be between 3 and 20 characters',
 }
