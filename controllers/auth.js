@@ -3,60 +3,90 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 
 const User = require("../models/user");
+const { messages, codes } = require('../util/messages');
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+            const error = new Error(messages.VALIDATION_FAILED);
+            error.statusCode = 422;
+            error.errors = errors.array();
+            error.code = codes.VALIDATION_ERROR;
+            return next(error);
         }
 
         if (!email || !password) {
-            return res.status(400).json({ message: 'All fields are required.' });
+            const error = new Error(messages.REQUIRED_FIELDS);
+            error.statusCode = 400;
+            error.code = codes.VALIDATION_ERROR;
+            return next(error);
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists. Please log in.' });
+            const error = new Error(messages.USER_EXISTS);
+            error.statusCode = 409;
+            error.code = codes.RESOURCE_EXISTS;
+            return next(error);
         }
+
+        const hashedPassword = await bcrypt.hash(password, 15);
 
         const newUser = new User({
             email,
             name,
-            password: await bcrypt.hash(req.body.password, 15)
+            password: hashedPassword
         });
 
         await newUser.save();
 
-        return res.status(201).json({ message: 'User registered successfully!', user: { email, password } });
-    } catch (error) {
-        return res.status(500).json({ message: 'Internal server error.' });
+        res.status(201).json({
+            message: messages.USER_REGISTERED,
+            user: { id: newUser._id, email: newUser.email, name: newUser.name },
+        });
+    } catch (err) {
+        err.statusCode = 500;
+        next(err);
     }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-
         const errors = validationResult(req);
+
         if (!errors.isEmpty()) {
-            return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+            const error = new Error(messages.VALIDATION_FAILED);
+            error.statusCode = 422;
+            error.errors = errors.array();
+            error.code = codes.VALIDATION_ERROR;
+            return next(error);
         }
 
         if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required.' });
+            const error = new Error(messages.EMAIL_PASSWORD_REQUIRED);
+            error.statusCode = 400;
+            error.code = codes.VALIDATION_ERROR;
+            return next(error);
         }
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password.' });
+            const error = new Error(messages.INCORRECT_EMAIL);
+            error.statusCode = 401;
+            error.code = codes.RESOURCE_DOES_NOT_EXIST;
+            return next(error);
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid email or password.' });
+            const error = new Error('messages.INCORRECT_PASSWORD');
+            error.statusCode = 401; 
+            error.code = codes.VALIDATION_ERROR;
+            return next(error);
         }
 
         const token = jwt.sign(
@@ -64,8 +94,8 @@ exports.login = async (req, res) => {
             process.env.JWT_SECRET,
         );
 
-        return res.status(200).json({
-            message: 'Login successful!',
+        res.status(200).json({
+            message: messages.LOGIN_SUCCESS,
             token,
             user: {
                 id: user._id,
@@ -73,8 +103,8 @@ exports.login = async (req, res) => {
                 email: user.email,
             },
         });
-    } catch (error) {
-        console.error('Error in login:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
+    } catch (err) {
+        err.statusCode = 500;
+        return next(err);
     }
 };

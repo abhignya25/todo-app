@@ -8,7 +8,11 @@ exports.createCategory = (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(422).json({ message: 'Validation failed.', errors: errors.array() });
+        const error = new Error('Validation failed. Invalid input.');
+        error.statusCode = 422;
+        error.errors = errors.array();
+        error.code = 'validation_error';
+        return next(error);
     }
 
     const category = new Category({
