@@ -7,12 +7,10 @@ const errorHandler = (err, req, res, next) => {
     const code = err.code || codes.SERVER_ERROR;
 
     if (errors) {
-        return res.status(statusCode).json(errors.map(error => {
-            return {
-                code: error.code || code,
-                message: error.msg,
-            };
-        }));
+        return res.status(statusCode).json({
+                code: errors[0].code || code,
+                message: errors[0].msg,
+            });
     }
 
     return res.status(statusCode).json({

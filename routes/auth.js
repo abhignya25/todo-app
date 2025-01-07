@@ -3,29 +3,30 @@ const router = express.Router();
 const { check, body } = require('express-validator');
 
 const authController = require('../controllers/auth');
+const { messages } = require('../util/constants');
 
 // Define routes
 // POST /auth/signup
 router.post('/signup',
-    check('email', 'Please enter a valid email')
+    check('email', messages.VALID_EMAIL)
+        .trim()
         .isEmail()
-        .normalizeEmail()
-        .trim(),
+        .normalizeEmail(),
     body('password')
+        .trim()
         .isLength({ min: 6 })
-        .withMessage('Password must be at least 6 characters long')
+        .withMessage(messages.PASSWORD_LENGTH)
         .isAlphanumeric()
-        .withMessage('Password must contain letters and numbers')
-        .trim(),
+        .withMessage(messages.VALID_PASSWORD),
     authController.signup
 );
 
 // POST /auth/login
 router.post('/login',
-    check('email', 'Please enter a valid email')
+    check('email', messages.VALID_EMAIL)
+        .trim()
         .isEmail()
-        .normalizeEmail()
-        .trim(),
+        .normalizeEmail(),
     authController.login
 );
 

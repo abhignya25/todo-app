@@ -35,6 +35,7 @@ exports.messages = {
     TAGS_NOT_ARRAY: 'Tags must be an array',
     TAGS_NOT_FOUND: 'One or more tags not found',
     TAG_LENGTH: 'Tag name must be between 3 and 20 characters',
+    TAGS_NOT_ARRAY: 'Tags must be an array',
     SUBTASK_CREATED_SUCCESSFULLY: 'Subtask created successfully',
     SUBTASK_DELETED: 'Subtask deleted successfully',
     SUBTASK_NOT_FOUND: 'Subtask not found',
@@ -59,6 +60,12 @@ exports.messages = {
     TASK_STATUS_TYPE: 'Status must be one of "Not Started", "In Progress", "Completed"',
     TASK_DUE_TYPE: 'Task due must be a date',
     TASK_NOT_FOUND: 'Task not found',
+    VALID_EMAIL: 'Please enter a valid email address',
+    VALID_PASSWORD: 'Password must contain letters and numbers',
+    PASSWORD_LENGTH: 'Password must be at least 6 characters long',
+    TITLE_REQUIRED: 'Title is required',
+    NAME_REQUIRED: 'Name is required',
+    PARENT_TASK_REQUIRED: 'Parent task is required',
 }
 
 exports.status = ["Open", "In Progress", "Completed"]

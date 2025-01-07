@@ -10,6 +10,7 @@ const { messages, status, priorities } = require('../util/constants');
 
 const validateTask = [
     body('title')
+        .notEmpty().withMessage(messages.TITLE_REQUIRED)
         .isString().withMessage(messages.TASK_TITLE_TYPE)
         .trim()
         .isLength({ min: 3, max: 100 }).withMessage(messages.TASK_TITLE_LENGTH),
@@ -31,6 +32,9 @@ const validateTask = [
         .optional()
         .trim()
         .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
+    body('tags')
+        .optional()
+        .isArray().withMessage(messages.TAGS_NOT_ARRAY),
 ];
 
 // Define routes

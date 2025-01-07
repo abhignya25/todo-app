@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
 
 const Task = require("../models/task");
+const Category = require("../models/category");
+const Tag = require("../models/tag");
 const Subtask = require("../models/subtask");
 const { messages, codes } = require('../util/constants');
 
@@ -15,21 +17,33 @@ exports.createTask = async (req, res, next) => {
         return next(error);
     }
 
-    // Check if category exists
-    const category = await Category.findById(req.body.category);
-    if (!category) {
-        const error = new Error(messages.CATEGORY_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_NOT_FOUND;
-        return next(error);
-    }
+    try {
+        // Check if category exists
+        if (req.body.category) {
+            const category = await Category.findById(req.body.category);
+            if (!category) {
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 422;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
+            }
+        }
 
-    // Check if all tags exist
-    const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
-    if (tags.length !== (req.body.tags || []).length) {
-        const error = new Error(messages.TAGS_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_NOT_FOUND;
+        const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
+        if (tags.length !== (req.body.tags || []).length) {
+            const error = new Error(messages.TAGS_NOT_FOUND);
+            error.statusCode = 422;
+            error.code = codes.RESOURCE_DOES_NOT_EXIST;
+            return next(error);
+        }
+    } catch (err) {
+        const error = new Error();
+        error.errors = [
+            {
+                code: err.code,
+                msg: err.message
+            }
+        ];
         return next(error);
     }
 
@@ -125,21 +139,34 @@ exports.updateTask = async (req, res, next) => {
         return next(error);
     }
 
-    // Check if category exists
-    const category = await Category.findById(req.body.category);
-    if (!category) {
-        const error = new Error(messages.CATEGORY_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_NOT_FOUND;
-        return next(error);
-    }
+    try {
+        // Check if category exists
+        if (req.body.category) {
+            const category = await Category.findById(req.body.category);
+            if (!category) {
+                const error = new Error(messages.CATEGORY_NOT_FOUND);
+                error.statusCode = 422;
+                error.code = codes.RESOURCE_DOES_NOT_EXIST;
+                return next(error);
+            }
+        }
 
-    // Check if all tags exist
-    const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
-    if (tags.length !== (req.body.tags || []).length) {
-        const error = new Error(messages.TAGS_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_NOT_FOUND;
+        // Check if all tags exist
+        const tags = await Tag.find({ '_id': { $in: req.body.tags || [] } });
+        if (tags.length !== (req.body.tags || []).length) {
+            const error = new Error(messages.TAGS_NOT_FOUND);
+            error.statusCode = 422;
+            error.code = codes.RESOURCE_DOES_NOT_EXIST;
+            return next(error);
+        }
+    } catch (err) {
+        const error = new Error();
+        error.errors = [
+            {
+                code: err.code,
+                msg: err.message
+            }
+        ];
         return next(error);
     }
 

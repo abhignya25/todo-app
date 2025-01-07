@@ -9,6 +9,7 @@ const { messages } = require('../util/constants');
 // Define validation
 const validateCategory = [
     body('name')
+        .notEmpty().withMessage(messages.NAME_REQUIRED)
         .isString().withMessage(messages.CATEGORY_TYPE)
         .trim()
         .isLength({ min: 3, max: 50 }).withMessage(messages.CATGEORY_LENGTH)

@@ -8,8 +8,9 @@ const { messages } = require('../util/constants');
 
 const validateTag = [
     body('name')
-        .isString().withMessage(messages.TAG_TYPE)
+        .notEmpty().withMessage(messages.NAME_REQUIRED)
         .trim()
+        .isString().withMessage(messages.TAG_TYPE)
         .isLength({ min: 3, max: 20 }).withMessage(messages.TAG_LENGTH)
 ];
 

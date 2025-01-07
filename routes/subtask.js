@@ -8,10 +8,10 @@ const { messages, status, priorities } = require('../util/constants');
 
 const validateSubtask = [
     body('title')
+        .notEmpty().withMessage(messages.TITLE_REQUIRED)
         .isString().withMessage(messages.SUBTASK_TITLE_TYPE)
         .trim()
-        .isLength({ min: 3, max: 100 }).withMessage(messages.SUBTASK_TITLE_LENGTH)
-        .trim(),
+        .isLength({ min: 3, max: 100 }).withMessage(messages.SUBTASK_TITLE_LENGTH),
     body('description')
         .optional()
         .trim()
@@ -30,6 +30,9 @@ const validateSubtask = [
         .optional()
         .trim()
         .isIn(priorities).withMessage(messages.SUBTASK_STATUS_TYPE),
+    body('parentTask')
+        .notEmpty().withMessage(messages.PARENT_TASK_REQUIRED)
+        
 ];
 
 // Define routes

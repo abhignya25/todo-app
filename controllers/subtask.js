@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 
 const Subtask = require('../models/subtask');
+const Task = require('../models/task');
 const { messages, codes } = require('../util/constants');
 
 exports.createSubtask = async (req, res, next) => {
@@ -14,11 +15,22 @@ exports.createSubtask = async (req, res, next) => {
         return next(error);
     }
 
-    const parentTask = await Task.findById(req.body.parentTask);
-    if (!parentTask) {
-        const error = new Error(messages.TASK_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_DOES_NOT_EXIST;
+    try {
+        const parentTask = await Task.findById(req.body.parentTask);
+        if (!parentTask) {
+            const error = new Error(messages.TASK_NOT_FOUND);
+            error.statusCode = 422;
+            error.code = codes.RESOURCE_DOES_NOT_EXIST;
+            return next(error);
+        }
+    } catch (err) {
+        const error = new Error();
+        error.errors = [
+            {
+                code: err.code,
+                msg: err.message
+            }
+        ];
         return next(error);
     }
 
@@ -107,14 +119,25 @@ exports.updateSubtask = async (req, res, next) => {
         return next(error);
     }
 
-    const parentTask = await Task.findById(req.body.parentTask);
-    if (!parentTask) {
-        const error = new Error(messages.TASK_NOT_FOUND);
-        error.statusCode = 422;
-        error.code = codes.RESOURCE_DOES_NOT_EXIST;
+    try {
+        const parentTask = await Task.findById(req.body.parentTask);
+        if (!parentTask) {
+            const error = new Error(messages.TASK_NOT_FOUND);
+            error.statusCode = 422;
+            error.code = codes.RESOURCE_DOES_NOT_EXIST;
+            return next(error);
+        }
+    } catch (err) {
+        const error = new Error();
+        error.errors = [
+            {
+                code: err.code,
+                msg: err.message
+            }
+        ];
         return next(error);
     }
-    
+
     Subtask.findOneAndUpdate({ _id: req.params.id, userId: req.user.id }, {
         $set: {
             title: req.body.title,
@@ -125,9 +148,9 @@ exports.updateSubtask = async (req, res, next) => {
             parentTask: req.body.parentTask,
             userId: req.user.id
         }
-    }, {new: true})
+    }, { new: true })
         .then(subtask => {
-            if(!subtask) {
+            if (!subtask) {
                 const error = new Error(messages.SUBTASK_NOT_FOUND);
                 error.statusCode = 404;
                 error.code = codes.RESOURCE_DOES_NOT_EXIST;

@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator');
 const { messages, codes } = require('../util/constants');
 
 
-exports.createTag = (req, res) => {
+exports.createTag = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -39,7 +39,7 @@ exports.createTag = (req, res) => {
         });
 }
 
-exports.getTag = (req, res) => {
+exports.getTag = (req, res, next) => {
     Tag.findOne({_id: req.params.id, userId: req.user.id})
         .then(tag => {
             if (!tag) {
@@ -65,7 +65,7 @@ exports.getTag = (req, res) => {
         });
 }
 
-exports.getTags = (req, res) => {
+exports.getTags = (req, res, next) => {
     Tag.find({ userId: req.user.id })
         .then(tags => {
             res.status(200).json({
@@ -84,7 +84,7 @@ exports.getTags = (req, res) => {
         });
 }
 
-exports.updateTag = (req, res) => {
+exports.updateTag = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -123,7 +123,7 @@ exports.updateTag = (req, res) => {
         });
 }
 
-exports.deleteTag = (req, res) => {
+exports.deleteTag = (req, res, next) => {
     Tag.findOneAndRemove({ _id: req.params.id, userId: req.user.id })
         .then(tag => {
             if (!tag) {
