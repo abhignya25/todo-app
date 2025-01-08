@@ -11,7 +11,11 @@ const validateTag = [
         .notEmpty().withMessage(messages.NAME_REQUIRED)
         .trim()
         .isString().withMessage(messages.TAG_TYPE)
-        .isLength({ min: 3, max: 20 }).withMessage(messages.TAG_LENGTH)
+        .isLength({ min: 3, max: 20 }).withMessage(messages.TAG_LENGTH),
+    query('search')
+        .trim()
+        .optional()
+        .isString().withMessage(messages.INVALID_SEARCH),
 ];
 
 // Define routes

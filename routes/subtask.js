@@ -31,7 +31,25 @@ const validateSubtask = [
         .trim()
         .isIn(priorities).withMessage(messages.SUBTASK_STATUS_TYPE),
     body('parentTask')
-        .notEmpty().withMessage(messages.PARENT_TASK_REQUIRED)
+        .notEmpty().withMessage(messages.PARENT_TASK_REQUIRED),
+        query('status')
+        .trim()
+        .optional()
+        .isIn(status).withMessage(messages.INVALID_STATUS),
+    query('search')
+        .optional()
+        .trim()
+        .isString().withMessage(messages.INVALID_SEARCH),
+    query('page')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_PAGE),
+    query('limit')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_LIMIT),
+    query('priority')
+        .optional()
+        .trim()
+        .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
         
 ];
 

@@ -73,10 +73,12 @@ exports.getTags = (req, res, next) => {
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    const searchQuery = search ? {
+    const searchQuery = {
         userId: req.user.id,
-        name: { $regex: search, $options: 'i' },
-    } : { userId: req.user.id };
+        ...(search && {
+            name: { $regex: search, $options: 'i' }
+        }),
+    }
 
     Tag.find(searchQuery).skip(offset).limit(limitNumber)
         .then(tags => {

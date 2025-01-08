@@ -95,20 +95,25 @@ exports.getSubtask = (req, res, next) => {
 }
 
 exports.getSubtasks = (req, res, next) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { priority = '', search = '', status = '', page = 1, limit = 10 } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    const searchQuery = search ? {
+    const searchQuery = {
         userId: req.user.id,
-        $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } }
-        ]
-    } : { userId: req.user.id };
+        ...(search && {
+            $or: [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ]
+        }),
+        ...(status && { status: status }),
+        ...(priority && { priority: priority })
+    }
+
 
     Subtask.find(searchQuery).skip(offset).limit(limitNumber)
         .then(subtasks => {

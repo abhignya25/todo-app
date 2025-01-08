@@ -35,6 +35,24 @@ const validateTask = [
     body('tags')
         .optional()
         .isArray().withMessage(messages.TAGS_NOT_ARRAY),
+    query('status')
+        .trim()
+        .optional()
+        .isIn(status).withMessage(messages.INVALID_STATUS),
+    query('search')
+        .optional()
+        .trim()
+        .isString().withMessage(messages.INVALID_SEARCH),
+    query('page')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_PAGE),
+    query('limit')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_LIMIT),
+    query('priority')
+        .optional()
+        .trim()
+        .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
 ];
 
 // Define routes

@@ -66,6 +66,11 @@ exports.messages = {
     TITLE_REQUIRED: 'Title is required',
     NAME_REQUIRED: 'Name is required',
     PARENT_TASK_REQUIRED: 'Parent task is required',
+    INVALID_STATUS: 'Invalid status value',
+    INVALID_SEARCH: 'Search query must be a string',
+    INVALID_PAGE: 'Page must be a positive integer',
+    INVALID_LIMIT: 'Limit must be a positive integer',
+    TASK_PRIORITY_TYPE: 'Priority must be one of "High", "Medium", "Low"',
 }
 
 exports.status = ["Open", "In Progress", "Completed"]

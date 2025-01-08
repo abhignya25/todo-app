@@ -109,21 +109,24 @@ exports.getTask = (req, res, next) => {
 }
 
 exports.getTasks = (req, res, next) => {
-    const { search = '', page = 1, limit = 10 } = req.query;
+    const { priority = '', status = '', search = '', page = 1, limit = 10 } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    const searchQuery = search ? {
+    const searchQuery = {
         userId: req.user.id,
-        $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } }
-        ]
-    } : { userId: req.user.id };
-
+        ...(search && {
+            $or: [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ]
+        }),
+        ...(status && { status: status }),
+        ...(priority && { priority: priority })
+    }
 
     Task.find(searchQuery).skip(offset).limit(limitNumber)
         .then(tasks => {
@@ -260,7 +263,7 @@ exports.deleteTask = (req, res, next) => {
 }
 
 exports.getSubtasksByTask = (req, res, next) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { priority = '', search = '', status = '', page = 1, limit = 10 } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -276,13 +279,17 @@ exports.getSubtasksByTask = (req, res, next) => {
                 return next(error);
             }
 
-            const searchQuery = search ? {
+            const searchQuery = {
                 parentTask: task._id,
-                $or: [
-                    { title: { $regex: search, $options: 'i' } },
-                    { description: { $regex: search, $options: 'i' } }
-                ]
-            } : { parentTask: task._id };
+                ...(search && {
+                    $or: [
+                        { title: { $regex: search, $options: 'i' } },
+                        { description: { $regex: search, $options: 'i' } }
+                    ]
+                }),
+                ...(status && { status: status }),
+                ...(priority && { priority: priority })
+            }
 
             Subtask.find(searchQuery).skip(offset).limit(limitNumber)
                 .then(subtasks => {
