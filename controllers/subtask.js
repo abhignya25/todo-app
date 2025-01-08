@@ -102,7 +102,15 @@ exports.getSubtasks = (req, res, next) => {
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    Subtask.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
+    const searchQuery = search ? {
+        userId: req.user.id,
+        $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } }
+        ]
+    } : { userId: req.user.id };
+
+    Subtask.find(searchQuery).skip(offset).limit(limitNumber)
         .then(subtasks => {
             res.status(200).json({
                 subtasks: subtasks

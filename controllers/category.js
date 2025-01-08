@@ -74,7 +74,12 @@ exports.getCategories = (req, res, next) => {
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    Category.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
+    const searchQuery = search ? {
+        userId: req.user.id,
+        name: { $regex: search, $options: 'i' },
+    } : { userId: req.user.id };
+
+    Category.find(searchQuery).skip(offset).limit(limitNumber)
         .then(categories => {
             if (categories.length === 0) {
                 return res.status(204).json({
@@ -166,7 +171,7 @@ exports.deleteCategory = (req, res, next) => {
 }
 
 exports.getTasksByCategory = (req, res, next) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { search = '', page = 1, limit = 10 } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -182,7 +187,15 @@ exports.getTasksByCategory = (req, res, next) => {
                 return next(error);
             }
 
-            Task.find({ category: category._id }).skip(offset).limit(limitNumber)
+            const searchQuery = search ? {
+                category: category._id,
+                $or: [
+                    { title: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } }
+                ]
+            } : { category: category._id };
+
+            Task.find(searchQuery).skip(offset).limit(limitNumber)
                 .then(tasks => {
                     if (tasks.length === 0) {
                         return res.status(204).json({

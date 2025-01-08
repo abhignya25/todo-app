@@ -109,14 +109,23 @@ exports.getTask = (req, res, next) => {
 }
 
 exports.getTasks = (req, res, next) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { search = '', page = 1, limit = 10 } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
     const offset = (pageNumber - 1) * limitNumber;
 
-    Task.find({ userId: req.user.id }).skip(offset).limit(limitNumber)
+    const searchQuery = search ? {
+        userId: req.user.id,
+        $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } }
+        ]
+    } : { userId: req.user.id };
+
+
+    Task.find(searchQuery).skip(offset).limit(limitNumber)
         .then(tasks => {
             if (tasks.length === 0) {
                 return res.status(204).json({
@@ -267,7 +276,15 @@ exports.getSubtasksByTask = (req, res, next) => {
                 return next(error);
             }
 
-            Subtask.find({ parentTask: task._id }).skip(offset).limit(limitNumber)
+            const searchQuery = search ? {
+                parentTask: task._id,
+                $or: [
+                    { title: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } }
+                ]
+            } : { parentTask: task._id };
+
+            Subtask.find(searchQuery).skip(offset).limit(limitNumber)
                 .then(subtasks => {
                     if (subtasks.length === 0) {
                         return res.status(204).json({
