@@ -31,8 +31,16 @@ const taskSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
         ref: "User" // Reference to the User model
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     }
-});
+}, { timestamps: true });
 
 taskSchema.pre('findOneAndRemove', async function (next) {
     try {

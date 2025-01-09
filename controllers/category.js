@@ -67,7 +67,7 @@ exports.getCategory = (req, res, next) => {
 }
 
 exports.getCategories = (req, res, next) => {
-    const { search = '', page = 1, limit = 10 } = req.query;
+    const { search = '', page = 1, limit = 10, sortBy = '', order = '' } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -81,7 +81,12 @@ exports.getCategories = (req, res, next) => {
         }),
     }
 
-    Category.find(searchQuery).skip(offset).limit(limitNumber)
+    const sortQuery = {}
+    if (sortBy) {
+        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+    }
+
+    Category.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
         .then(categories => {
             if (categories.length === 0) {
                 return res.status(204).json({
@@ -173,7 +178,7 @@ exports.deleteCategory = (req, res, next) => {
 }
 
 exports.getTasksByCategory = (req, res, next) => {
-    const { priority = '', status = '', search = '', page = 1, limit = 10 } = req.query;
+    const { priority = '', status = '', search = '', page = 1, limit = 10, sortBy = '', order = '' } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -201,7 +206,12 @@ exports.getTasksByCategory = (req, res, next) => {
                 ...(priority && { priority: priority })
             }
 
-            Task.find(searchQuery).skip(offset).limit(limitNumber)
+            const sortQuery = {}
+            if (sortBy) {
+                sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+            }
+
+            Task.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
                 .then(tasks => {
                     if (tasks.length === 0) {
                         return res.status(204).json({

@@ -66,7 +66,7 @@ exports.getTag = (req, res, next) => {
 }
 
 exports.getTags = (req, res, next) => {
-    const { search = '', page = 1, limit = 10 } = req.query;
+    const { search = '', page = 1, limit = 10, sortBy = '', order = '' } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -80,7 +80,12 @@ exports.getTags = (req, res, next) => {
         }),
     }
 
-    Tag.find(searchQuery).skip(offset).limit(limitNumber)
+    const sortQuery = {}
+    if (sortBy) {
+        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+    }
+
+    Tag.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
         .then(tags => {
             res.status(200).json({
                 tags: tags

@@ -95,7 +95,7 @@ exports.getSubtask = (req, res, next) => {
 }
 
 exports.getSubtasks = (req, res, next) => {
-    const { priority = '', search = '', status = '', page = 1, limit = 10 } = req.query;
+    const { priority = '', search = '', status = '', page = 1, limit = 10, sortBy = '', order = '' } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -114,8 +114,12 @@ exports.getSubtasks = (req, res, next) => {
         ...(priority && { priority: priority })
     }
 
+    const sortQuery = {}
+    if (sortBy) {
+        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+    }
 
-    Subtask.find(searchQuery).skip(offset).limit(limitNumber)
+    Subtask.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
         .then(subtasks => {
             res.status(200).json({
                 subtasks: subtasks

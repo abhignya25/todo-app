@@ -29,6 +29,6 @@ const subtaskSchema = new Schema({
         required: true,
         ref: "User" // Reference to the User model
     }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Subtask", subtaskSchema);
