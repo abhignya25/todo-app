@@ -8,6 +8,15 @@ const taskController = require('../controllers/task');
 const authMiddleware = require('../middleware/jwtAuth');
 const { messages, status, priorities } = require('../util/constants');
 
+// Import model
+const Task = require('../models/task');
+
+const getFieldNames = (model) => {
+    return Object.keys(model.schema.paths);
+};
+
+const fields = getFieldNames(Task)
+
 const validateTask = [
     body('title')
         .notEmpty().withMessage(messages.TITLE_REQUIRED)
@@ -53,6 +62,14 @@ const validateTask = [
         .optional()
         .trim()
         .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
+    query('sortBy')
+        .optional()
+        .trim()
+        .isIn(fields).withMessage(messages.INVALID_SORT_BY),
+    query('order')
+        .optional()
+        .trim()
+        .isIn(['asc', 'desc']).withMessage(messages.INVALID_ORDER),
 ];
 
 // Define routes

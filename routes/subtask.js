@@ -6,6 +6,14 @@ const subtaskController = require('../controllers/subtask');
 const authMiddleware = require('../middleware/jwtAuth');
 const { messages, status, priorities } = require('../util/constants');
 
+const Subtask = require('../models/subtask');
+
+const getFieldNames = (model) => {
+    return Object.keys(model.schema.paths);
+};
+
+const fields = getFieldNames(Subtask)
+
 const validateSubtask = [
     body('title')
         .notEmpty().withMessage(messages.TITLE_REQUIRED)
@@ -32,7 +40,7 @@ const validateSubtask = [
         .isIn(priorities).withMessage(messages.SUBTASK_STATUS_TYPE),
     body('parentTask')
         .notEmpty().withMessage(messages.PARENT_TASK_REQUIRED),
-        query('status')
+    query('status')
         .trim()
         .optional()
         .isIn(status).withMessage(messages.INVALID_STATUS),
@@ -50,7 +58,15 @@ const validateSubtask = [
         .optional()
         .trim()
         .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
-        
+    query('sortBy')
+        .optional()
+        .trim()
+        .isIn(fields).withMessage(messages.INVALID_SORT_BY),
+    query('order')
+        .optional()
+        .trim()
+        .isIn(['asc', 'desc']).withMessage(messages.INVALID_ORDER),
+
 ];
 
 // Define routes

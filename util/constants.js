@@ -71,6 +71,8 @@ exports.messages = {
     INVALID_PAGE: 'Page must be a positive integer',
     INVALID_LIMIT: 'Limit must be a positive integer',
     TASK_PRIORITY_TYPE: 'Priority must be one of "High", "Medium", "Low"',
+    INVALID_SORT_BY: 'Invalid sort by field',
+    INVALID_ORDER: 'Invalid order value',
 }
 
 exports.status = ["Open", "In Progress", "Completed"]

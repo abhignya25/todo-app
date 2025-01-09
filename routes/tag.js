@@ -6,6 +6,14 @@ const tagController = require('../controllers/tag');
 const authMiddleware = require('../middleware/jwtAuth');
 const { messages } = require('../util/constants');
 
+const Tag = require('../models/tag');
+
+const getFieldNames = (model) => {
+    return Object.keys(model.schema.paths);
+};
+
+const fields = getFieldNames(Tag)
+
 const validateTag = [
     body('name')
         .notEmpty().withMessage(messages.NAME_REQUIRED)
@@ -16,6 +24,20 @@ const validateTag = [
         .trim()
         .optional()
         .isString().withMessage(messages.INVALID_SEARCH),
+    query('page')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_PAGE),
+    query('limit')
+        .optional()
+        .isInt({ min: 1 }).withMessage(messages.INVALID_LIMIT),
+    query('sortBy')
+        .optional()
+        .trim()
+        .isIn(fields).withMessage(messages.INVALID_SORT_BY),
+    query('order')
+        .optional()
+        .trim()
+        .isIn(['asc', 'desc']).withMessage(messages.INVALID_ORDER),
 ];
 
 // Define routes

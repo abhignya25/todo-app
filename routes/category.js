@@ -6,6 +6,14 @@ const categoryController = require('../controllers/category');
 const authMiddleware = require('../middleware/jwtAuth');
 const { messages, status, priorities } = require('../util/constants');
 
+const Category = require('../models/category');
+
+const getFieldNames = (model) => {
+    return Object.keys(model.schema.paths);
+};
+
+const fields = getFieldNames(Category)
+
 // Define validation
 const validateCategory = [
     body('name')
@@ -31,6 +39,14 @@ const validateCategory = [
         .optional()
         .trim()
         .isIn(priorities).withMessage(messages.TASK_PRIORITY_TYPE),
+    query('sortBy')
+        .optional()
+        .trim()
+        .isIn(fields).withMessage(messages.INVALID_SORT_BY),
+    query('order')
+        .optional()
+        .trim()
+        .isIn(['asc', 'desc']).withMessage(messages.INVALID_ORDER),
 ];
 
 // Define routes
