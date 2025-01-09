@@ -32,14 +32,6 @@ const taskSchema = new Schema({
         required: true,
         ref: "User" // Reference to the User model
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
 }, { timestamps: true });
 
 taskSchema.pre('findOneAndRemove', async function (next) {

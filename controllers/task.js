@@ -120,8 +120,8 @@ exports.getTasks = (req, res, next) => {
         userId: req.user.id,
         ...(search && {
             $or: [
-                { title: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+                { title: { $regex: `.*${search}.*`, $options: 'i' } },
+                { description: { $regex: `.*${search}.*`, $options: 'i' } }
             ]
         }),
         ...(status && { status: status }),
@@ -130,7 +130,7 @@ exports.getTasks = (req, res, next) => {
 
     const sortQuery = {};
     if (sortBy) {
-        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1;
+        sortQuery[sortBy] = order ? (order.toLowerCase() === 'asc' ? 1 : -1) : -1;
     }
 
     Task.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
@@ -288,8 +288,8 @@ exports.getSubtasksByTask = (req, res, next) => {
                 parentTask: task._id,
                 ...(search && {
                     $or: [
-                        { title: { $regex: search, $options: 'i' } },
-                        { description: { $regex: search, $options: 'i' } }
+                        { title: { $regex: `.*${search}.*`, $options: 'i' } },
+                        { description: { $regex: `.*${search}.*`, $options: 'i' } }
                     ]
                 }),
                 ...(status && { status: status }),
@@ -298,7 +298,7 @@ exports.getSubtasksByTask = (req, res, next) => {
 
             const sortQuery = {}
             if (sortBy) {
-                sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+                sortQuery[sortBy] = order ? (order.toLowerCase() === 'asc' ? 1 : -1) : -1
             }
 
             Subtask.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)

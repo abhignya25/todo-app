@@ -83,7 +83,7 @@ exports.getCategories = (req, res, next) => {
 
     const sortQuery = {}
     if (sortBy) {
-        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+        sortQuery[sortBy] = order ? (order.toLowerCase() === 'asc' ? 1 : -1) : -1
     }
 
     Category.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
@@ -208,7 +208,7 @@ exports.getTasksByCategory = (req, res, next) => {
 
             const sortQuery = {}
             if (sortBy) {
-                sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+                sortQuery[sortBy] = order ? (order.toLowerCase() === 'asc' ? 1 : -1) : -1
             }
 
             Task.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)

@@ -65,6 +65,7 @@ const validateSubtask = [
     query('order')
         .optional()
         .trim()
+        .toLowerCase()
         .isIn(['asc', 'desc']).withMessage(messages.INVALID_ORDER),
 
 ];

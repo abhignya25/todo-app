@@ -76,13 +76,13 @@ exports.getTags = (req, res, next) => {
     const searchQuery = {
         userId: req.user.id,
         ...(search && {
-            name: { $regex: search, $options: 'i' }
+            name: { $regex: `.*${search}.*`, $options: 'i' }
         }),
     }
 
     const sortQuery = {}
     if (sortBy) {
-        sortQuery[sortBy] = order ? (order === 'asc' ? 1 : -1) : -1
+        sortQuery[sortBy] = order ? (order.toLowerCase() === 'asc' ? 1 : -1) : -1
     }
 
     Tag.find(searchQuery).skip(offset).limit(limitNumber).sort(sortQuery)
