@@ -87,10 +87,10 @@ router.get('/:id', authMiddleware.jwtAuth, taskController.getTask);
 router.get('/', authMiddleware.jwtAuth, taskController.getTasks);
 
 // POST /tasks
-router.post('/', authMiddleware.jwtAuth, validateTask, upload, taskController.createTask);
+router.post('/', authMiddleware.jwtAuth, validateTask, upload.array('files', 5), taskController.createTask);
 
 // POST /tasks/:taskId/upload
-router.post('/tasks/:taskId/upload', authMiddleware.jwtAuth, upload, taskController.uploadFiles);
+router.post('/:taskId/upload', authMiddleware.jwtAuth, upload.array('files', 5), taskController.uploadFiles);
 
 // PUT /tasks/:id
 router.put('/:id', authMiddleware.jwtAuth, validateTask, taskController.updateTask);

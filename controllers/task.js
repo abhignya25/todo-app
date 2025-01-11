@@ -297,14 +297,13 @@ exports.uploadFiles = async (req, res, next) => {
     }
 
     const files = req.files.map(file => ({
-        originalName: file.originalname,
-        filePath: file.path,
-        mimeType: file.mimetype,
+        filename: file.originalname,
+        path: file.path,
+        mimetype: file.mimetype,
         size: file.size,
-        uploadDate: new Date()
     }));
 
-    task.files.push(...files);
+    task.files = files;
 
     task.save()
         .then((task => {
