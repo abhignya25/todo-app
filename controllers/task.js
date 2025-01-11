@@ -7,6 +7,17 @@ const Subtask = require("../models/subtask");
 const { messages, codes } = require('../util/constants');
 
 exports.createTask = async (req, res, next) => {
+
+    let files = [];
+    if (req.files && req.files.length > 0) {
+        files = req.files.map(file => ({
+            originalName: file.originalname,
+            filePath: file.path,
+            mimeType: file.mimetype,
+            size: file.size
+        }));
+    }
+
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -54,6 +65,7 @@ exports.createTask = async (req, res, next) => {
         status: req.body.status,
         tags: req.body.tags,
         category: req.body.category,
+        files: files,
         userId: req.user.id
     }
 
@@ -265,6 +277,53 @@ exports.deleteTask = (req, res, next) => {
             ];
             return next(error);
         });
+}
+
+exports.uploadFiles = async (req, res, next) => {
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) {
+        const error = new Error(messages.TASK_NOT_FOUND)
+        error.statusCode = 404
+        error.code = codes.RESOURCE_DOES_NOT_EXIST
+        return next(error)
+    }
+
+    if (!req.files || req.files.length === 0) {
+        const error = new Error(messages.NO_FILES_UPLOADED)
+        error.statusCode = 422
+        error.code = codes.VALIDATION_ERROR
+        return next(error)
+    }
+
+    const files = req.files.map(file => ({
+        originalName: file.originalname,
+        filePath: file.path,
+        mimeType: file.mimetype,
+        size: file.size,
+        uploadDate: new Date()
+    }));
+
+    task.files.push(...files);
+
+    task.save()
+        .then((task => {
+            return res.status(200).json({
+                message: messages.FILE_UPLOAD_SUCCESSFUL,
+                task: task
+            });
+        }))
+        .catch(err => {
+            const error = new Error();
+            error.errors = [
+                {
+                    code: err.code,
+                    msg: err.message
+                }
+            ];
+            return next(error);
+        });
+
 }
 
 exports.getSubtasksByTask = (req, res, next) => {

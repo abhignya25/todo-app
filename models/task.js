@@ -27,6 +27,24 @@ const taskSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Tag" // Reference to the Tag model
     }],
+    files: [{
+        filename: {
+            type: String, 
+            required: true
+        },
+        path: {
+            type: String,
+            required: true
+        },
+        size: {
+            type: Number,
+            required: true
+        },
+        mimetype: {
+            type: String,
+            required: true
+        }
+    }],
     userId: {
         type: Schema.Types.ObjectId,
         required: true,

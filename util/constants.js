@@ -73,6 +73,8 @@ exports.messages = {
     TASK_PRIORITY_TYPE: 'Priority must be one of "High", "Medium", "Low"',
     INVALID_SORT_BY: 'Invalid sort by field',
     INVALID_ORDER: 'Invalid order value',
+    FILE_UPLOAD_SUCCESSFUL: 'Files uploaded successfully',
+    NO_FILES_UPLOADED: 'No files uploaded'
 }
 
 exports.status = ["Open", "In Progress", "Completed"]

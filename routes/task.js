@@ -6,7 +6,10 @@ const { body, query } = require('express-validator');
 // Import controller
 const taskController = require('../controllers/task');
 const authMiddleware = require('../middleware/jwtAuth');
+
 const { messages, status, priorities } = require('../util/constants');
+
+const upload = require('../middleware/fileUpload');
 
 // Import model
 const Task = require('../models/task');
@@ -84,7 +87,10 @@ router.get('/:id', authMiddleware.jwtAuth, taskController.getTask);
 router.get('/', authMiddleware.jwtAuth, taskController.getTasks);
 
 // POST /tasks
-router.post('/', authMiddleware.jwtAuth, validateTask, taskController.createTask);
+router.post('/', authMiddleware.jwtAuth, validateTask, upload, taskController.createTask);
+
+// POST /tasks/:taskId/upload
+router.post('/tasks/:taskId/upload', authMiddleware.jwtAuth, upload, taskController.uploadFiles);
 
 // PUT /tasks/:id
 router.put('/:id', authMiddleware.jwtAuth, validateTask, taskController.updateTask);
