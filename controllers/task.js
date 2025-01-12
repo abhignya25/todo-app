@@ -7,13 +7,12 @@ const Subtask = require("../models/subtask");
 const { messages, codes } = require('../util/constants');
 
 exports.createTask = async (req, res, next) => {
-
     let files = [];
     if (req.files && req.files.length > 0) {
         files = req.files.map(file => ({
-            originalName: file.originalname,
-            filePath: file.path,
-            mimeType: file.mimetype,
+            filename: file.originalname,
+            path: file.path,
+            mimetype: file.mimetype,
             size: file.size
         }));
     }
