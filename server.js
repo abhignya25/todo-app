@@ -2,9 +2,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config({ path: './config/.env' });
 
 const errorHandler = require('./middleware/errorHandler');
+const swaggerDefinition = require('./swagger/swaggerDef');
 
 // Initialize the app
 const app = express();
@@ -24,6 +27,14 @@ const categoryRoutes = require('./routes/category');
 // Register middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+const options = {
+    swaggerDefinition,
+    apis: ['./routes/*.js'], // Path to your route files
+};
+const swaggerSpec = swaggerJsdoc(options);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Register routes
 app.use('/tags', tagRoutes);

@@ -52,21 +52,284 @@ const validateCategory = [
 
 // Define routes
 // GET /categories/:id/tasks
+/**
+ * @swagger
+ * /categories/{id}/tasks:
+ *   get:
+ *     summary: Retrieve tasks associated with a specific category
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the category
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by priority
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by status
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search tasks by title or description
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of tasks per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: Field to sort tasks by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Sort order (ascending or descending)
+ *     responses:
+ *       200:
+ *         description: Tasks retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tasks:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       204:
+ *         description: No tasks found
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id/tasks', authMiddleware.jwtAuth, categoryController.getTasksByCategory);
 
 // GET /categories/:id
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Retrieve a specific category
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the category
+ *     responses:
+ *       200:
+ *         description: Category retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 category:
+ *                   type: object
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', authMiddleware.jwtAuth, categoryController.getCategory);
 
-// GET /categoriess
+// GET /categories
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Retrieve categories with optional filters
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search categories by name
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of categories per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *         description: Field to sort categories by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Sort order (ascending or descending)
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 categories:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       204:
+ *         description: No categories found
+ *       500:
+ *         description: Server error
+ */
 router.get('/', authMiddleware.jwtAuth, categoryController.getCategories);
 
 // POST /categories
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Create a new category
+ *     tags:
+ *       - Categories
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the category
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 category:
+ *                   type: object
+ *       422:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
 router.post('/', authMiddleware.jwtAuth, validateCategory, categoryController.createCategory);
 
 // PUT /categories/:id
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Update an existing category
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the category
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Updated name of the category
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 category:
+ *                   type: object
+ *       404:
+ *         description: Category not found
+ *       422:
+ *         description: Validation error
+ *       500:
+ *         description: Server error
+ */
 router.put('/:id', authMiddleware.jwtAuth, validateCategory, categoryController.updateCategory);
 
 // DELETE /categories/:id
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Delete a specific category
+ *     tags:
+ *       - Categories
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the category
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', authMiddleware.jwtAuth, categoryController.deleteCategory);
 
 

@@ -8,6 +8,7 @@ const { messages, codes } = require('../util/constants');
 
 exports.createTask = async (req, res, next) => {
     let files = [];
+
     if (req.files && req.files.length > 0) {
         files = req.files.map(file => ({
             filename: file.originalname,
